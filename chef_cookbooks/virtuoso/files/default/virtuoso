@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+BASEPATH=/opt/virtuoso
+DAEMON=${BASEPATH}/bin/virtuoso-t
+NAME=virtuoso
+SHORTNAME=virtuoso
+DESC="Virtuoso OpenSource Edition"
+DBPATH=${BASEPATH}/var/lib/virtuoso/db
+LOGDIR=${BASEPATH}/var/log  # Log directory to use
+
+. /lib/lsb/init-functions
+
+
+LOGFILE=$LOGDIR/$NAME.log  # Server logfile
+DAEMONUSER=$NAME   # Users to run the daemons as. If this value
+                   # is set start-stop-daemon will chuid the server
+
+set -e
+
+start_server() {
+# Start the process using the wrapper
+            start-stop-daemon -o --start --quiet \
+                         --user virtuoso \
+                         --chdir $DBPATH --exec $DAEMON 
+}
+
+stop_server() {
+     	    return 0;
+}
+
+
+case "$1" in
+  start)
+        start_server ; 
+        ;;
+  stop)
+            stop_server 
+        ;;
+  restart|force-reload)
+        stop_server 
+        start_server 
+        ;;
+  status)
+        ;;
+  *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|stop|force-stop|restart|force-reload|status}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+
+
